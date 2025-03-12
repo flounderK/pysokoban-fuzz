@@ -6,6 +6,12 @@ from collections import namedtuple
 Pos = namedtuple("Pos", ["r", "c"])
 
 
+def batch(it, sz):
+    for i in range(0, len(it), sz):
+        yield it[i:i+sz]
+
+
+
 class Direction(enum.Enum):
     Up = enum.auto()
     Down = enum.auto()
@@ -25,10 +31,12 @@ class Direction(enum.Enum):
         return p
 
 
+
 class Tile(enum.Enum):
     Crate = enum.auto()
     Floor = enum.auto()
     Wall = enum.auto()
+
 
 
 class State:
@@ -77,31 +85,7 @@ class State:
         return True
 
     def print(self):
-        outp = ''
-        for r in range(0, self.dim_r):
-            for c in range(0, self.dim_c):
-                pos = Pos(r, c)
-                t = self.container.get(pos)
-                if t is None:
-                    outp += '?'
-                elif pos == self.player:
-                    if pos in self.targets:
-                        outp += "M"
-                    else:
-                        outp += "m"
-                elif t == Tile.Floor:
-                    if pos in self.targets:
-                        outp += "E"
-                    else:
-                        outp += "."
-                elif t == Tile.Wall:
-                    outp += "w"
-                elif t == Tile.Crate:
-                    if pos in self.targets:
-                        outp += "O"
-                    else:
-                        outp += "o"
-            outp += "\n"
+        outp = "\n".join([i for i in batch(str(self), self.dim_c)])
         return outp
 
     @staticmethod
@@ -128,5 +112,32 @@ class State:
                     targets.append(pos)
             container[pos] = newt
         return State.new(container, player, targets, r, c)
+
+    def __str__(self):
+        outp = ''
+        for r in range(0, self.dim_r):
+            for c in range(0, self.dim_c):
+                pos = Pos(r, c)
+                t = self.container.get(pos)
+                if t is None:
+                    outp += '?'
+                elif pos == self.player:
+                    if pos in self.targets:
+                        outp += "M"
+                    else:
+                        outp += "m"
+                elif t == Tile.Floor:
+                    if pos in self.targets:
+                        outp += "E"
+                    else:
+                        outp += "."
+                elif t == Tile.Wall:
+                    outp += "w"
+                elif t == Tile.Crate:
+                    if pos in self.targets:
+                        outp += "O"
+                    else:
+                        outp += "o"
+        return outp
 
 

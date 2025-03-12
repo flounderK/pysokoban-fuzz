@@ -12,5 +12,5 @@ r = requests.get("http://www.linusakesson.net/games/autosokoban/board.php?v=1&se
 
 soup = BeautifulSoup(r.content)
 c = soup.text.strip()
-
+print(c)
 
